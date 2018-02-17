@@ -7,11 +7,9 @@
 
 package org.usfirst.frc.team3070.robot;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -41,8 +39,10 @@ public class Robot extends IterativeRobot {
 		limit = new DigitalInput(0);
 		joy = new Joystick(0);
 		SmartDashboard.putNumber("Motor value", motorValue);
+		SmartDashboard.putBoolean("switch", limit.get());
 		tal2.setInverted(true);
 		tal1.setInverted(false);
+		
 	}
 
 	/**
@@ -74,17 +74,18 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		motorValue = SmartDashboard.getNumber("Motor value", 0);
-		if (limit.get()) {
+		motorValue = SmartDashboard.getNumber("Motor value", 0.2);
+		SmartDashboard.putBoolean("switch", limit.get());
+		if (joy.getRawAxis(1) < -0.5){
+			tal1.set(ControlMode.PercentOutput, -0.5);
+			tal2.set(ControlMode.PercentOutput, -0.5);
+		} else if (limit.get()) {
 			tal1.set(ControlMode.PercentOutput, 0);
 			tal2.set(ControlMode.PercentOutput, 0);
 		} else if (joy.getRawAxis(1) > 0.5) {
-			tal1.set(ControlMode.PercentOutput, motorValue);
-			tal2.set(ControlMode.PercentOutput, motorValue);
-		} else if (joy.getRawAxis(1) < -0.5){
-			tal1.set(ControlMode.PercentOutput, -motorValue);
-			tal2.set(ControlMode.PercentOutput, -motorValue);
-		} else {
+			tal1.set(ControlMode.PercentOutput, 0.5);
+			tal2.set(ControlMode.PercentOutput, 0.5);
+		} else{
 			tal1.set(ControlMode.PercentOutput, 0);
 			tal2.set(ControlMode.PercentOutput, 0);
 		}
